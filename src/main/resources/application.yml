@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: ecommerce-enterprise-senior
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ecommerce}
+    username: ${SPRING_DATASOURCE_USERNAME:ecommerce}
+    password: ${SPRING_DATASOURCE_PASSWORD:ecommerce}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate.format_sql: true
+  flyway:
+    enabled: true
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    username: ${SPRING_RABBITMQ_USERNAME:ecommerce}
+    password: ${SPRING_RABBITMQ_PASSWORD:ecommerce}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:portfolio-enterprise-secret-key-change-me}
+    issuer: ecommerce-enterprise
+    expiration-minutes: 120
+  cache:
+    product-ttl-seconds: 300
+  outbox:
+    batch-size: 50

@@ -1,0 +1,3 @@
+package br.com.portfolio.ecommerce.inventory.domain;
+import br.com.portfolio.ecommerce.shared.domain.BusinessException; import org.junit.jupiter.api.Test; import java.util.UUID; import static org.junit.jupiter.api.Assertions.*;
+class InventoryItemTest { @Test void shouldNotReserveWithoutStock(){ var item=new InventoryItem(UUID.randomUUID(),1,0,0); assertThrows(BusinessException.class, () -> item.reserve(2)); } }

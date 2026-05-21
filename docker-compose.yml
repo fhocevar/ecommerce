@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: ecommerce_postgres
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: ecommerce
+      POSTGRES_PASSWORD: ecommerce
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecommerce"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce_redis
+    ports: ["6379:6379"]
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ecommerce_rabbitmq
+    ports: ["5672:5672", "15672:15672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: ecommerce
+      RABBITMQ_DEFAULT_PASS: ecommerce
+
+  api:
+    build: .
+    container_name: ecommerce_api
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      rabbitmq: { condition: service_started }
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommerce
+      SPRING_DATASOURCE_USERNAME: ecommerce
+      SPRING_DATASOURCE_PASSWORD: ecommerce
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ecommerce
+      SPRING_RABBITMQ_PASSWORD: ecommerce
+      APP_JWT_SECRET: portfolio-enterprise-secret-key-change-me
+    ports: ["8080:8080"]
+
+volumes:
+  pgdata:
