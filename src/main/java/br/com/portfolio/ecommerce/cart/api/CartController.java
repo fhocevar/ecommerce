@@ -1,0 +1,3 @@
+package br.com.portfolio.ecommerce.cart.api;
+import br.com.portfolio.ecommerce.cart.application.CartService; import jakarta.validation.constraints.*; import org.springframework.web.bind.annotation.*; import java.util.*;
+@RestController @RequestMapping("/api/v1/cart") public class CartController { private final CartService service; public CartController(CartService service){this.service=service;} @PostMapping("/{customerId}/items") void add(@PathVariable UUID customerId,@RequestBody AddItemRequest r){ service.add(customerId,r.productId(),r.quantity()); } @GetMapping("/{customerId}") Map<Object,Object> get(@PathVariable UUID customerId){ return service.get(customerId); } public record AddItemRequest(@NotNull UUID productId,@Min(1) int quantity){} }

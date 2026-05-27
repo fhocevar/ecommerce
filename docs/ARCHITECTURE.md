@@ -1,19 +1,27 @@
-# Arquitetura
+# Architecture
 
-O sistema segue Clean Architecture:
+Este projeto demonstra uma arquitetura de e-commerce orientada a domínio.
 
-```text
-API -> Application Use Cases -> Domain <- Infrastructure Adapters
-```
+## Decisões
 
-A regra principal é: o domínio não depende de Spring, JPA, Redis ou RabbitMQ.
+- O domínio não depende de Spring.
+- Use cases orquestram transações e integrações.
+- Repositories são portas de saída.
+- Adapters JPA implementam as portas.
+- Outbox grava eventos no mesmo banco da transação de negócio.
+- Um job publica eventos pendentes no RabbitMQ.
+- Consumers tratam eventos de pagamento e notificação.
+- Redis é usado para carrinho temporário.
+- Idempotência impede duplicidade de checkout.
 
-## Decisões enterprise
+## Fluxo de checkout
 
-1. O carrinho fica no Redis porque é temporário e expira.
-2. O pedido fica no PostgreSQL porque é transacional e auditável.
-3. A reserva de estoque usa lock pessimista para evitar venda acima do estoque.
-4. A criação de pedido usa `Idempotency-Key` para evitar duplicidade em retries.
-5. Eventos de domínio são persistidos em `outbox_events` antes de serem publicados.
-6. RabbitMQ é usado para integração assíncrona.
-7. Flyway controla a evolução do banco.
+1. API recebe `CheckoutCommand` com `Idempotency-Key`.
+2. Use case valida cliente, cupom, produtos e estoque.
+3. Reserva estoque com lock pessimista.
+4. Calcula frete e desconto.
+5. Cria pedido com status `PENDING_PAYMENT`.
+6. Persiste evento em outbox.
+7. Job publica no RabbitMQ.
+8. Serviço de pagamento simulado aprova ou rejeita.
+9. Consumer atualiza status do pedido.

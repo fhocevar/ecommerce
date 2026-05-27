@@ -1,0 +1,3 @@
+package br.com.portfolio.ecommerce.outbox.infrastructure.persistence;
+import jakarta.persistence.*; import java.time.*; import java.util.*;
+@Entity @Table(name="outbox_events") public class OutboxJpaEntity { @Id public UUID id; public String eventType; public Instant occurredAt; @Column(columnDefinition="text") public String payload; public boolean published; public Instant createdAt; protected OutboxJpaEntity(){} public OutboxJpaEntity(UUID id,String eventType,Instant occurredAt,String payload,boolean published,Instant createdAt){this.id=id;this.eventType=eventType;this.occurredAt=occurredAt;this.payload=payload;this.published=published;this.createdAt=createdAt;} }

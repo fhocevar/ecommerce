@@ -1,0 +1,3 @@
+package br.com.portfolio.ecommerce.inventory.infrastructure.persistence;
+import jakarta.persistence.*; import java.util.*;
+@Entity @Table(name="inventory") public class InventoryJpaEntity { @Id private UUID productId; private int availableQuantity; @Version private long version; protected InventoryJpaEntity(){} public InventoryJpaEntity(UUID productId,int availableQuantity){this.productId=productId;this.availableQuantity=availableQuantity;} public UUID getProductId(){return productId;} public int getAvailableQuantity(){return availableQuantity;} public void setAvailableQuantity(int q){this.availableQuantity=q;} }

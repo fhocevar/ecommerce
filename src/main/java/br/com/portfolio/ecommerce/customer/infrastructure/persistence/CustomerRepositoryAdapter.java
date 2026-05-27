@@ -1,0 +1,3 @@
+package br.com.portfolio.ecommerce.customer.infrastructure.persistence;
+import br.com.portfolio.ecommerce.customer.application.port.out.CustomerRepository; import br.com.portfolio.ecommerce.customer.domain.Customer; import org.springframework.stereotype.Repository; import java.util.*;
+@Repository public class CustomerRepositoryAdapter implements CustomerRepository { private final CustomerJpaRepository repo; public CustomerRepositoryAdapter(CustomerJpaRepository repo){this.repo=repo;} public Optional<Customer> findById(UUID id){ return repo.findById(id).map(e->new Customer(e.getId(),e.getName(),e.getEmail(),e.isActive())); } }

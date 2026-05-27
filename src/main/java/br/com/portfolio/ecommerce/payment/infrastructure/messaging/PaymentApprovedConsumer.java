@@ -1,0 +1,4 @@
+package br.com.portfolio.ecommerce.payment.infrastructure.messaging;
+import br.com.portfolio.ecommerce.order.application.port.out.OrderRepository; import org.springframework.amqp.rabbit.annotation.RabbitListener; import org.springframework.stereotype.Component; import org.springframework.transaction.annotation.Transactional;
+import java.util.*; import java.util.regex.*;
+@Component public class PaymentApprovedConsumer { private final OrderRepository orders; public PaymentApprovedConsumer(OrderRepository orders){this.orders=orders;} @RabbitListener(queues="ecommerce.payment-approved") @Transactional public void consume(String payload){ var id=extract(payload); if(id!=null){ orders.findById(UUID.fromString(id)).ifPresent(o->{o.markPaid(); orders.save(o);}); } } private String extract(String p){ var m=Pattern.compile("orderId\":\"([^\"]+)").matcher(p); return m.find()?m.group(1):null; } }

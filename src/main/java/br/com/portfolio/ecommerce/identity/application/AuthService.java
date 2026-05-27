@@ -1,0 +1,5 @@
+package br.com.portfolio.ecommerce.identity.application;
+import br.com.portfolio.ecommerce.identity.infrastructure.persistence.UserAccountJpaRepository; import br.com.portfolio.ecommerce.identity.infrastructure.security.JwtService; import br.com.portfolio.ecommerce.shared.domain.BusinessException;
+import org.springframework.security.crypto.password.PasswordEncoder; import org.springframework.stereotype.Service;
+@Service
+public class AuthService { private final UserAccountJpaRepository users; private final PasswordEncoder encoder; private final JwtService jwt; public AuthService(UserAccountJpaRepository users,PasswordEncoder encoder,JwtService jwt){this.users=users;this.encoder=encoder;this.jwt=jwt;} public String login(String email,String password){ var user=users.findByEmail(email).orElseThrow(()->new BusinessException("Usuário inválido")); if(!encoder.matches(password,user.getPasswordHash())) throw new BusinessException("Senha inválida"); return jwt.generate(user.getEmail(), user.getRole()); } }

@@ -1,1 +1,1 @@
-package br.com.portfolio.ecommerce.order.domain; public enum OrderStatus { CREATED, PAYMENT_PENDING, PAID, CANCELLED, FULFILLED }
+package br.com.portfolio.ecommerce.order.domain; public enum OrderStatus { PENDING_PAYMENT, PAID, PAYMENT_REJECTED, CANCELLED, SHIPPED, DELIVERED }

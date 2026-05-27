@@ -1,93 +1,112 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+create sequence if not exists order_items_seq start with 1 increment by 50;
 
-CREATE TABLE customers (
-    id UUID PRIMARY KEY,
-    name VARCHAR(160) NOT NULL,
-    email VARCHAR(180) NOT NULL UNIQUE,
-    document VARCHAR(30) NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+create table user_accounts (
+    id uuid primary key,
+    email varchar(180) not null unique,
+    password_hash varchar(255) not null,
+    role varchar(50) not null
 );
 
-CREATE TABLE products (
-    id UUID PRIMARY KEY,
-    sku VARCHAR(80) NOT NULL UNIQUE,
-    name VARCHAR(180) NOT NULL,
-    description TEXT,
-    price NUMERIC(18,2) NOT NULL,
-    active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now()
+create table customers (
+    id uuid primary key,
+    name varchar(180) not null,
+    email varchar(180) not null,
+    active boolean not null
 );
 
-CREATE TABLE inventory_items (
-    product_id UUID PRIMARY KEY REFERENCES products(id),
-    available_quantity INT NOT NULL,
-    reserved_quantity INT NOT NULL DEFAULT 0,
-    version BIGINT NOT NULL DEFAULT 0
+create table products (
+    id uuid primary key,
+    sku varchar(80) not null unique,
+    name varchar(180) not null,
+    price numeric(12,2) not null,
+    active boolean not null
 );
 
-CREATE TABLE orders (
-    id UUID PRIMARY KEY,
-    customer_id UUID NOT NULL REFERENCES customers(id),
-    status VARCHAR(40) NOT NULL,
-    total_amount NUMERIC(18,2) NOT NULL,
-    idempotency_key VARCHAR(120) NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now()
+create table inventory (
+    product_id uuid primary key,
+    available_quantity int not null,
+    version bigint not null default 0
 );
 
-CREATE TABLE order_items (
-    id UUID PRIMARY KEY,
-    order_id UUID NOT NULL REFERENCES orders(id),
-    product_id UUID NOT NULL REFERENCES products(id),
-    sku VARCHAR(80) NOT NULL,
-    product_name VARCHAR(180) NOT NULL,
-    quantity INT NOT NULL,
-    unit_price NUMERIC(18,2) NOT NULL,
-    total_price NUMERIC(18,2) NOT NULL
+create table orders (
+    id uuid primary key,
+    customer_id uuid not null,
+    status varchar(40) not null,
+    subtotal numeric(12,2) not null,
+    discount numeric(12,2) not null,
+    shipping numeric(12,2) not null,
+    total numeric(12,2) not null,
+    idempotency_key varchar(120) unique,
+    created_at timestamp with time zone not null
 );
 
-CREATE TABLE payments (
-    id UUID PRIMARY KEY,
-    order_id UUID NOT NULL UNIQUE REFERENCES orders(id),
-    status VARCHAR(40) NOT NULL,
-    provider VARCHAR(80) NOT NULL,
-    external_reference VARCHAR(120),
-    amount NUMERIC(18,2) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+create table order_items (
+    id bigint primary key default nextval('order_items_seq'),
+    order_id uuid not null references orders(id),
+    product_id uuid not null,
+    product_name varchar(180) not null,
+    quantity int not null,
+    unit_price numeric(12,2) not null
 );
 
-CREATE TABLE outbox_events (
-    id UUID PRIMARY KEY,
-    aggregate_type VARCHAR(80) NOT NULL,
-    aggregate_id UUID NOT NULL,
-    event_type VARCHAR(120) NOT NULL,
-    payload JSONB NOT NULL,
-    status VARCHAR(30) NOT NULL,
-    attempts INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    processed_at TIMESTAMP NULL
+create table outbox_events (
+    id uuid primary key,
+    event_type varchar(100) not null,
+    occurred_at timestamp with time zone not null,
+    payload text not null,
+    published boolean not null,
+    created_at timestamp with time zone not null
 );
 
-CREATE TABLE audit_log (
-    id UUID PRIMARY KEY,
-    actor VARCHAR(120),
-    action VARCHAR(120) NOT NULL,
-    resource VARCHAR(120) NOT NULL,
-    resource_id VARCHAR(120),
-    metadata JSONB,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+create table audit_logs (
+    id uuid primary key,
+    action varchar(120) not null,
+    details text,
+    created_at timestamp with time zone not null
 );
 
-INSERT INTO customers(id, name, email, document) VALUES
-('11111111-1111-1111-1111-111111111111', 'Cliente Portfolio', 'cliente@portfolio.com', '12345678900');
+insert into user_accounts(id,email,password_hash,role)
+values (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'admin@portfolio.com',
+    '$2a$10$OzO3AeXZ8d00Hhb3oYyk3OuY4QORkkKxEvI9/Nu8JW/Fv4bPdgd8O',
+    'ADMIN'
+);
 
-INSERT INTO products(id, sku, name, description, price, active) VALUES
-('22222222-2222-2222-2222-222222222221', 'NOTEBOOK-PRO-14', 'Notebook Pro 14', 'Notebook para produtividade e desenvolvimento', 8999.90, true),
-('22222222-2222-2222-2222-222222222222', 'HEADSET-WIRELESS', 'Headset Wireless', 'Headset bluetooth com cancelamento de ruido', 799.90, true),
-('22222222-2222-2222-2222-222222222223', 'DOCK-USB-C', 'Dock USB-C Enterprise', 'Dock station com HDMI, rede e USB-C', 599.90, true);
+insert into customers(id,name,email,active)
+values (
+    '11111111-1111-1111-1111-111111111111',
+    'Cliente Demo',
+    'cliente@portfolio.com',
+    true
+);
 
-INSERT INTO inventory_items(product_id, available_quantity, reserved_quantity) VALUES
-('22222222-2222-2222-2222-222222222221', 20, 0),
-('22222222-2222-2222-2222-222222222222', 100, 0),
-('22222222-2222-2222-2222-222222222223', 50, 0);
+insert into products(id,sku,name,price,active)
+values
+    (
+        '22222222-2222-2222-2222-222222222221',
+        'NOTEBOOK-PRO',
+        'Notebook Pro 16',
+        8999.90,
+        true
+    ),
+    (
+        '22222222-2222-2222-2222-222222222222',
+        'MOUSE-WIRELESS',
+        'Mouse Wireless',
+        199.90,
+        true
+    ),
+    (
+        '22222222-2222-2222-2222-222222222223',
+        'KEYBOARD-MECH',
+        'Teclado Mecânico',
+        499.90,
+        true
+    );
+
+insert into inventory(product_id,available_quantity,version)
+values
+    ('22222222-2222-2222-2222-222222222221', 10, 0),
+    ('22222222-2222-2222-2222-222222222222', 100, 0),
+    ('22222222-2222-2222-2222-222222222223', 50, 0);

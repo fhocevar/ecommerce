@@ -1,0 +1,3 @@
+package br.com.portfolio.ecommerce.catalog.api;
+import br.com.portfolio.ecommerce.catalog.application.usecase.ListProductsUseCase; import org.springframework.web.bind.annotation.*; import java.math.BigDecimal; import java.util.*;
+@RestController @RequestMapping("/api/v1/products") public class ProductController { private final ListProductsUseCase useCase; public ProductController(ListProductsUseCase useCase){this.useCase=useCase;} @GetMapping List<ProductResponse> list(){ return useCase.execute().stream().map(p->new ProductResponse(p.id(),p.sku(),p.name(),p.price().amount())).toList(); } public record ProductResponse(UUID id,String sku,String name,BigDecimal price){} }

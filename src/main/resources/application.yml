@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ecommerce-enterprise-senior
+    name: ecommerce-enterprise-senior-v2
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ecommerce}
     username: ${SPRING_DATASOURCE_USERNAME:ecommerce}
@@ -10,36 +10,34 @@ spring:
       ddl-auto: validate
     open-in-view: false
     properties:
-      hibernate.format_sql: true
-  flyway:
-    enabled: true
+      hibernate:
+        format_sql: true
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
+      port: 6379
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: 5672
     username: ${SPRING_RABBITMQ_USERNAME:ecommerce}
     password: ${SPRING_RABBITMQ_PASSWORD:ecommerce}
-
-server:
-  port: 8080
-
+  flyway:
+    enabled: true
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,prometheus,metrics
   endpoint:
     health:
       show-details: always
-
 app:
   jwt:
-    secret: ${APP_JWT_SECRET:portfolio-enterprise-secret-key-change-me}
-    issuer: ecommerce-enterprise
+    secret: ${APP_JWT_SECRET:portfolio-enterprise-secret-key-change-me-please-32chars}
+    issuer: ecommerce-portfolio
     expiration-minutes: 120
-  cache:
-    product-ttl-seconds: 300
-  outbox:
-    batch-size: 50
+  messaging:
+    exchange: ecommerce.events
+    order-created-routing-key: order.created
+    payment-approved-routing-key: payment.approved
+    payment-rejected-routing-key: payment.rejected

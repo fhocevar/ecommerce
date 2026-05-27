@@ -1,0 +1,1 @@
+package br.com.portfolio.ecommerce.audit.infrastructure.persistence; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface AuditJpaRepository extends JpaRepository<AuditJpaEntity, UUID> {}

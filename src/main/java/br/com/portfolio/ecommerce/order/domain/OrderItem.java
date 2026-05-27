@@ -1,8 +1,3 @@
 package br.com.portfolio.ecommerce.order.domain;
-import br.com.portfolio.ecommerce.shared.domain.Money;
-import java.util.UUID;
-public record OrderItem(UUID id, UUID productId, String sku, String productName, int quantity, Money unitPrice, Money totalPrice) {
-    public static OrderItem create(UUID productId, String sku, String productName, int quantity, Money unitPrice) {
-        return new OrderItem(UUID.randomUUID(), productId, sku, productName, quantity, unitPrice, unitPrice.multiply(quantity));
-    }
-}
+import br.com.portfolio.ecommerce.shared.domain.*; import java.util.*;
+public class OrderItem { private final UUID productId; private final String productName; private final int quantity; private final Money unitPrice; public OrderItem(UUID productId,String productName,int quantity,Money unitPrice){ if(quantity<=0) throw new BusinessException("Quantidade inválida"); this.productId=productId;this.productName=productName;this.quantity=quantity;this.unitPrice=unitPrice;} public Money total(){ return unitPrice.multiply(quantity); } public UUID productId(){return productId;} public String productName(){return productName;} public int quantity(){return quantity;} public Money unitPrice(){return unitPrice;} }

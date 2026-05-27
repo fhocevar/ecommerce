@@ -1,0 +1,3 @@
+package br.com.portfolio.ecommerce.order.infrastructure.persistence;
+import br.com.portfolio.ecommerce.order.domain.OrderStatus; import jakarta.persistence.*; import java.math.BigDecimal; import java.time.*; import java.util.*;
+@Entity @Table(name="orders") public class OrderJpaEntity { @Id UUID id; UUID customerId; @Enumerated(EnumType.STRING) OrderStatus status; BigDecimal subtotal; BigDecimal discount; BigDecimal shipping; BigDecimal total; String idempotencyKey; Instant createdAt; @OneToMany(mappedBy="order", cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.EAGER) List<OrderItemJpaEntity> items=new ArrayList<>(); protected OrderJpaEntity(){} }

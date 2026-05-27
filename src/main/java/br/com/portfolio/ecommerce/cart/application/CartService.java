@@ -1,17 +1,3 @@
 package br.com.portfolio.ecommerce.cart.application;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import java.time.Duration; import java.util.*;
-
-@Service
-public class CartService {
-    private final RedisTemplate<String, Object> redisTemplate;
-    public CartService(RedisTemplate<String, Object> redisTemplate){ this.redisTemplate = redisTemplate; }
-    private String key(UUID customerId){ return "cart:" + customerId; }
-    public void addItem(UUID customerId, UUID productId, int quantity){
-        redisTemplate.opsForHash().increment(key(customerId), productId.toString(), quantity);
-        redisTemplate.expire(key(customerId), Duration.ofHours(12));
-    }
-    public Map<Object,Object> getCart(UUID customerId){ return redisTemplate.opsForHash().entries(key(customerId)); }
-    public void clear(UUID customerId){ redisTemplate.delete(key(customerId)); }
-}
+import org.springframework.data.redis.core.StringRedisTemplate; import org.springframework.stereotype.Service; import java.time.Duration; import java.util.*;
+@Service public class CartService { private final StringRedisTemplate redis; public CartService(StringRedisTemplate redis){this.redis=redis;} public void add(UUID customerId,UUID productId,int quantity){ redis.opsForHash().put("cart:"+customerId,productId.toString(),String.valueOf(quantity)); redis.expire("cart:"+customerId, Duration.ofHours(2)); } public Map<Object,Object> get(UUID customerId){ return redis.opsForHash().entries("cart:"+customerId); } }
