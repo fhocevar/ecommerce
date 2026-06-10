@@ -69,7 +69,7 @@ insert into user_accounts(id,email,password_hash,role)
 values (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'admin@portfolio.com',
-    '$2a$10$OzO3AeXZ8d00Hhb3oYyk3OuY4QORkkKxEvI9/Nu8JW/Fv4bPdgd8O',
+    '$2a$10$ZDUlQLaOJU88U1IHAZ1lVOHCHpT2i25pF4fBKyYhoF3ZrxjxIzDjS',
     'ADMIN'
 );
 
