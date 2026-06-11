@@ -1,6 +1,27 @@
+# Java
 target/
+*.class
+
+# Maven
+.mvn/
+
+# IDE
 .idea/
 .vscode/
 *.iml
+
+# Environment
 .env
+.env.*
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Logs
+*.log
+
+# OS
 .DS_Store
+Thumbs.db
